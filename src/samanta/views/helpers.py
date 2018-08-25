@@ -2,9 +2,9 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.contrib.sites.shortcuts import get_current_site
 
-from ..core.mailer.mailer import EmailSender
-from ..core.hasher import Hasher
-from ..models import UserCreationLog, EmailChangeLog, PasswordRecoveryLog
+from samanta.core.mailer.mailer import EmailSender
+from samanta.core.hasher import Hasher
+from samanta.models import UserCreationLog, EmailChangeLog, PasswordRecoveryLog
 
 
 class TokenMailBuilder:

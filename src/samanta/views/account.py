@@ -18,30 +18,30 @@ from .. models import UserCreationLog, SamUser, EmailChangeLog, PasswordRecovery
 
 
 class Register(ViewMixin):
+    """Genereal view for the user registration"""
 
     TEMPLATE = 'samanta/account/register.html'
     TITLE = _('Register')
 
     def get(self, request):
+        """Process the get requests"""
 
         form = SamUserCreationForm()
-
-        for field in form.visible_fields():
-            if field.name != 'terms_of_service':
-                field.field.widget.attrs['class'] = 'form-control'
+        self.beautify_form(form, ignore_fields=('terms_of_service',))
 
         context = {'form': form}
         return self.render(request, context)
 
     def post(self, request):
+        """Process the post requests"""
 
         form = SamUserCreationForm(request.POST)
+        self.beautify_form(form, ignore_fields=('terms_of_service',))
 
         context = {'form': form}
 
         if not form.is_valid():
-            messages.warning(request, _('There is invalid information in your '
-                                        'data.'))
+            messages.warning(request, _('Please check the provided data.'))
 
             return self.render(request, context)
 
@@ -59,9 +59,6 @@ class AccountConfirm(TokenBasedView):
     TEMPLATE = 'samanta/account/activate.html'
     TITLE = 'Activate account'
 
-    def check_activation_token(self, request, user, token):
-        return self.process_token(request, user, token, UserCreationLog)
-
     def get(self, request, uidb64='', token=''):
 
         if request.user.is_authenticated:
@@ -76,7 +73,7 @@ class AccountConfirm(TokenBasedView):
                                         "are trying to activate."))
             return redirect('home')
 
-        result = self.check_activation_token(request, user, token)
+        result = self.process_token(request, user, token, UserCreationLog)
 
         if not result:
             redirect('home')
@@ -107,9 +104,7 @@ class EmailChange(ViewMixin):
 
     def get(self, request):
         form = ChangeEmailForm(request.user)
-
-        for inputField in form.visible_fields():
-            inputField.field.widget.attrs['class'] = 'form-control'
+        self.beautify_form(form)
 
         return self.render(request, {'form': form})
 
@@ -117,9 +112,7 @@ class EmailChange(ViewMixin):
 
         user = request.user
         form = ChangeEmailForm(user, request.POST)
-
-        for inputField in form.visible_fields():
-            inputField.field.widget.attrs['class'] = 'form-control'
+        self.beautify_form(form)
 
         if not form.is_valid():
             messages.warning(request, 'Please correct the information below.')
@@ -153,8 +146,7 @@ class EmailChangeConfirm(TokenBasedView):
             messages.warning(request, "Invalid link")
             return redirect('home')
 
-        Token = self.process_token(request, user, token, EmailChangeLog,
-                                   commit=False)
+        Token = self.process_token(request, user, token, EmailChangeLog)
 
         if not Token:
             return redirect('home')
@@ -176,15 +168,15 @@ class PasswordChange(ViewMixin):
 
     def get(self, request):
         form = self.PASSWORD_CHANGE_FORM(request.user)
-
-        for inputField in form.visible_fields():
-            inputField.field.widget.attrs['class'] = 'form-control'
+        self.beautify_form(form)
 
         return self.render(request, {'form': form})
 
     def post(self, request):
 
         form = self.PASSWORD_CHANGE_FORM(request.user, request.POST)
+        self.beautify_form(form)
+
         if form.is_valid():
             form.save()
             messages.success(request, 'Your password was successfully '
@@ -192,9 +184,6 @@ class PasswordChange(ViewMixin):
             return redirect('user_profile')
         else:
             messages.error(request, 'Please correct the error below.')
-
-        for inputField in form.visible_fields():
-            inputField.field.widget.attrs['class'] = 'form-control'
 
         return self.render(request, {'form': form})
 
@@ -208,23 +197,19 @@ class ProfileEdit(ViewMixin):
 
     def get(self, request):
         form = self.USER_EDIT_FORM(instance=request.user)
+        self.beautify_form(form)
 
-        for inputField in form.visible_fields():
-            inputField.field.widget.attrs['class'] = 'form-control'
         return self.render(request, {'form': form})
 
     def post(self, request):
 
         form = self.USER_EDIT_FORM(request.POST, instance=request.user)
+        self.beautify_form(form)
+
         if form.is_valid():
             form.save()
             return redirect('user_profile')
-        else:
-            print("not valid!")
-            print(form.errors)
 
-        for inputField in form.visible_fields():
-            inputField.field.widget.attrs['class'] = 'form-control'
         return self.render(request, {'form': form})
 
 
@@ -238,11 +223,9 @@ class PasswordRecoveryStart(ViewMixin):
             return redirect('home')
 
         form = self.PASWORD_RECOVERY_FORM()
+        self.beautify_form(form)
+
         context = {'form': form}
-
-        for inputField in form.visible_fields():
-            inputField.field.widget.attrs['class'] = 'form-control'
-
         return self.render(request, context)
 
     def post(self, request):
@@ -294,8 +277,7 @@ class PasswordRecoveryChange(TokenBasedView):
             messages.warning(request, "Invalid link")
             return redirect('home')
 
-        is_valid = self.process_token(request, user, token, PasswordRecoveryLog,
-                                      commit=False)
+        is_valid = self.process_token(request, user, token, PasswordRecoveryLog)
 
         if not is_valid:
             return redirect('home')
@@ -303,14 +285,12 @@ class PasswordRecoveryChange(TokenBasedView):
         form = self.PASSWORD_RECOVERY_FORM(user, initial={'hashid': uidb64,
                                                           'token': token
                                                           })
+        self.beautify_form(form)
 
         context = {'form': form,
                    'hashid': uidb64,
                    'token': token
                    }
-
-        for inputField in form.visible_fields():
-            inputField.field.widget.attrs['class'] = 'form-control'
 
         return self.render(request, context)
 
@@ -336,8 +316,7 @@ class PasswordRecoveryChange(TokenBasedView):
             return redirect('home')
 
         # open the token related to that user
-        Token = self.process_token(request, user, token, PasswordRecoveryLog,
-                                   commit=False)
+        Token = self.process_token(request, user, token, PasswordRecoveryLog)
 
         if not Token:
             messages.warning(request, "Password problems")

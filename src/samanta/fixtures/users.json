@@ -1,0 +1,101 @@
+[  
+   {  
+      "model":"samanta.samuser",
+      "pk":1,
+      "fields":{  
+         "password":"pbkdf2_sha256$36000$oWNHofuCbGyD$LXr82BSNzwlxE6oEkN0xi1sIWE0FPZNerayBflbzpu8=",
+         "last_login":null,
+         "is_superuser":true,
+         "first_name":"super",
+         "last_name":"user",
+         "is_staff":true,
+         "date_joined":"2018-08-31T22:17:19.222Z",
+         "username":"root",
+         "email":"r@r.com",
+         "date_of_birth":null,
+         "location":"",
+         "language":"",
+         "gender":0,
+         "avatar":"",
+         "activated_at":null,
+         "updated_at":null,
+         "is_active":false,
+         "unban_time":null,
+         "groups":[  
+
+         ],
+         "user_permissions":[  
+
+         ],
+         "teams":[  
+
+         ]
+      }
+   },
+   {  
+      "model":"samanta.samuser",
+      "pk":2,
+      "fields":{  
+         "password":"pbkdf2_sha256$36000$oWNHofuCbGyD$LXr82BSNzwlxE6oEkN0xi1sIWE0FPZNerayBflbzpu8=",
+         "last_login":null,
+         "is_superuser":true,
+         "first_name":"staff",
+         "last_name":"user",
+         "is_staff":true,
+         "date_joined":"2018-08-31T22:17:19.222Z",
+         "username":"staff",
+         "email":"s@s.com",
+         "date_of_birth":null,
+         "location":"",
+         "language":"",
+         "gender":0,
+         "avatar":"",
+         "activated_at":null,
+         "updated_at":null,
+         "is_active":false,
+         "unban_time":null,
+         "groups":[  
+
+         ],
+         "user_permissions":[  
+
+         ],
+         "teams":[  
+
+         ]
+      }
+   },
+{  
+      "model":"samanta.samuser",
+      "pk":3,
+      "fields":{  
+         "password":"pbkdf2_sha256$36000$oWNHofuCbGyD$LXr82BSNzwlxE6oEkN0xi1sIWE0FPZNerayBflbzpu8=",
+         "last_login":null,
+         "is_superuser":true,
+         "first_name":"normal",
+         "last_name":"user",
+         "is_staff":true,
+         "date_joined":"2018-08-31T22:17:19.222Z",
+         "username":"user",
+         "email":"u@u.com",
+         "date_of_birth":null,
+         "location":"",
+         "language":"",
+         "gender":0,
+         "avatar":"",
+         "activated_at":null,
+         "updated_at":null,
+         "is_active":false,
+         "unban_time":null,
+         "groups":[  
+
+         ],
+         "user_permissions":[  
+
+         ],
+         "teams":[  
+
+         ]
+      }
+   }
+]

@@ -1,3 +1,7 @@
+"""
+General configurations, it contains all the settings that can be imported
+within the app and correspond to the fall back for those configurations
+"""
 import django.conf
 
 

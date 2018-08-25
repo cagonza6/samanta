@@ -18,28 +18,41 @@ from . conf import settings
 
 
 class SamAuthenticationForm(AuthenticationForm):
+    """Extension of the Django AuthenticationForm in order to consider the
+     'is_active' attribute of the user"""
+
+    error_messages = AuthenticationForm.error_messages.copy()
+    error_messages['banned'] = 'Your account is banned until {until}'
 
     def confirm_login_allowed(self, user):
         """
-        Controls whether the given User may log in. This is a policy setting,
-        independent of end-user authentication. This default behavior is to
-        allow login by active users, and reject login by inactive users.
+        extends the confirm_login_allowed from django AuthenticationForm in
+        order to provide further filters.
+        Since the default for django is checking active, this form can allow to
+        use any custom filter, such as ban times.
 
         If the given user cannot log in, this method should raise a
         ``forms.ValidationError``.
 
-        If the given user may log in, this method should return None.
+        :param user: SamUser: user to check to
+        :return: None, it just raises excepions
         """
-        if not user.is_active:
+        # use default validations
+        super(SamAuthenticationForm, self).confirm_login_allowed(user)
+        if user.is_banned:
             raise forms.ValidationError(
-                self.error_messages['inactive'],
-                code='inactive',
+                self.error_messages['banned'],
+                code='banned',
+                params={'until': user.unban_time}
             )
 
 
 class SamUserCreationForm(UserCreationForm):
+    """Custom creation form used to extend the functionalities of
+    UserCreationForm by creating new fields and checks
+    """
 
-    error_messages = UserCreationForm.error_messages
+    error_messages = UserCreationForm.error_messages.copy()
     error_messages.update({
         'email_in_used': _('This email is already in use.'),
         'email_mismatch': _("The two email fields didn't match."),
@@ -47,11 +60,14 @@ class SamUserCreationForm(UserCreationForm):
         'username_in_use': _("This username is already taken."),
     })
 
+    # is use captcha is required, add the field to the form
     if settings.USE_CAPTCHA:
         captcha = CaptchaField()
 
+    # used for confirmation
     email2 = forms.EmailField(label=_("Confirm your Email"), max_length=254)
 
+    # general tos check
     terms_of_service = forms.BooleanField(
         help_text=_("I read and accept the terms and conditions."),
         widget=forms.CheckboxInput(
@@ -63,14 +79,17 @@ class SamUserCreationForm(UserCreationForm):
 
     class Meta:
         model = SamUser
-        fields = ['username', 'email', 'email2', 'terms_of_service',
-                  'password1', 'password2']
+        fields = ['username', 'email', 'email2', 'password1', 'password2',
+                  'terms_of_service']
         if settings.USE_CAPTCHA:
             fields += ['captcha']
 
     def clean_email2(self):
-        email1 = self.cleaned_data.get("email")
-        email2 = self.cleaned_data.get("email2")
+        """Makes sure that the second mail matches the first one, in order to
+        avoid user that made mistakes at login
+        """
+        email1 = self.cleaned_data.get("email")  # original
+        email2 = self.cleaned_data.get("email2")  # confirmation
 
         # confirm email
         if email1 and email2 and email1 != email2:
@@ -90,6 +109,9 @@ class SamUserCreationForm(UserCreationForm):
         return email2
 
     def clean_username(self):
+        """Used to clean the username and ensure case sensitivity and
+        uniqueness.
+        """
 
         # ensure case insensitive
         username = self.cleaned_data.get('username')
@@ -105,8 +127,8 @@ class SamUserCreationForm(UserCreationForm):
 
 class ChangeEmailForm(forms.Form):
     """
-    A form that lets a user change set their password without entering the old
-    password
+    Used to allow the users to change their email. It requires password
+    confirmation
     """
     error_messages = {
         'password_incorrect': _("The password you entered is incorrect. "
@@ -135,7 +157,7 @@ class ChangeEmailForm(forms.Form):
 
     def clean_password(self):
         """
-        Validates that the old_password field is correct.
+        Validates that the given password is correct.
         """
         password = self.cleaned_data["password"]
         if not self.user.check_password(password):
@@ -144,41 +166,49 @@ class ChangeEmailForm(forms.Form):
                 code='password_incorrect',
             )
         return password
-    #
-    # def clean_email_new(self):
-    #     email_new = self.cleaned_data.get('email_new', None)
-    #     if not email_new:
-    #         return None
-    #     return email_new
 
     def clean_email_new2(self):
-        email_new = self.cleaned_data.get('email_new')
-        email_new2 = self.cleaned_data.get('email_new2')
-        if email_new and email_new2:
-            if email_new != email_new2:
+        """ Ensures the given email matches the confirmation
+
+        :return: str: cleaned email confirmation
+
+        """
+        email_new = self.cleaned_data.get('email_new').lower()
+        email_new2 = self.cleaned_data.get('email_new2').lower()
+
+        # both present and the same
+        if email_new and email_new2 and email_new != email_new2:
                 raise forms.ValidationError(
                     self.error_messages['email_mismatch'],
                     code='email_mismatch',
                 )
-            if email_new == self.user.email:
-                raise forms.ValidationError(
-                    self.error_messages['same_email'],
-                    code='same_email',
-                )
-            if SamUser.objects.filter(email__iexact=email_new).exclude(
-                    id=self.user.id).count() > 0:
-                raise forms.ValidationError(
-                    self.error_messages['email_in_use'],
-                    code='email_in_use',
-                )
+        # not repeated
+        if email_new == self.user.email.lower():
+            raise forms.ValidationError(
+                self.error_messages['same_email'],
+                code='same_email',
+            )
+        # uniqueness
+        if SamUser.objects.filter(email__iexact=email_new).exclude(
+                id=self.user.id).count() > 0:
+            raise forms.ValidationError(
+                self.error_messages['email_in_use'],
+                code='email_in_use',
+            )
         return email_new2
 
     @property
     def clean_mail(self):
+        """Use to access the clean email from the outside tiwhout acessing the
+        cleaned data
+
+        :return: str or None: cleande email ot None if something fialed
+        """
         return self.cleaned_data.get('email_new', None)
 
 
 class SamUserEditForm(forms.ModelForm):
+    """Form used to edit the users profile information"""
 
     def __init__(self, *args, **kwargs):
         super(SamUserEditForm, self).__init__(*args, **kwargs)
@@ -189,10 +219,14 @@ class SamUserEditForm(forms.ModelForm):
 
 
 class PasswordRecoveryForm(forms.Form):
+    """Single form used in the frontend for the recovery of the users password"""
     email = forms.EmailField(label=_("Email"), max_length=254)
 
 
 class TokenConfirmationForm(forms.Form):
+    """Base form for the confirmation of a token. It provides the base methods
+    to validate the inputs.
+    """
 
     error_messages = {
         'empty_token': _("empty_token."),
