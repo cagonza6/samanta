@@ -1,0 +1,10 @@
+Change email
+
+You received this email because you or some one else is using the change email function and set this email as the contact email. to complete the process just press the button below.
+
+{{ protocol }}://{{ domain }}{% url 'email_confirm' uidb64 token %}
+
+If you have any questions, just write to {{ help_email }} we're always happy to help out.
+
+Best regards,
+The {{ team_name }}

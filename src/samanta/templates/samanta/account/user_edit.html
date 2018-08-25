@@ -1,0 +1,93 @@
+{% extends 'samanta/account/profile_based.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block view %}
+    <div class="alert alert-warning">
+        <strong>Warning!</strong> All the information you place here will be
+        made public to other users and even not registered users.
+        If you want to keep some (or all) that information private, simply do
+        not fill the fields. In other words, just fill what you want all the
+        other users to see.
+    </div>
+
+    <div class="panel panel-info">
+      <!-- Default panel contents -->
+      <div class="panel-heading text-center">
+          <i class="fa fa-id-card-o" aria-hidden="true"></i>
+        Profile: <b>{{ user.get_full_name | title}}</b>
+      </div>
+      <div class="panel-body">
+
+          <form action="." method="post" id="form_edit">
+              <div class="col-md-3 text-center">
+                      <img alt="Avatar" src="{{ user.gravatar }}"><br>
+                      {% if user.last_login %}Last login: <br><b>{{ user.last_login |date:"d-M-Y" }}</b>{% endif %}
+              </div>
+                  <div class="col-md-9 ">
+              <!-- Table -->
+                    {% for field in form %}
+                    <div class="row">
+                        <div class="col-md-3 ">
+                            {{ field.label }}
+                        </div>
+                        <div class="col-md-9 ">
+                            {{ field }}
+                        </div>
+                      {% if field.errors %}
+                        <div class="col-md-9 col-md-offset-3">
+                          {% for error in  field.errors %}
+                            <span class="label label-warning">{{ error}}</span>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+
+                    </div>
+                    {% endfor %}
+
+                  </div>
+                  <div class="col-md-9 ">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" type="submit" value="Submit">Submit</button>
+                  </div>
+          </form>
+          {% if 0 %}
+          <div class="panel-footer">
+                <a href="mailto:{{user.email}}" data-original-title="Broadcast Message" class="btn btn-sm btn-primary">
+                    <i class="glyphicon glyphicon-envelope"></i>
+                </a>
+                <span class="pull-right">
+                    <a href="edit.html" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning">
+                        <i class="glyphicon glyphicon-edit"></i>
+                    </a>
+                    <a data-original-title="Ban this user" class="btn btn-sm btn-danger">
+                        <i class="fa fa-ban" aria-hidden="true"></i>
+                    </a>
+                    <a data-original-title="Delete this user" class="btn btn-sm btn-danger">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </a>
+                </span>
+          </div>
+          {% endif %}
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'vendors/jquery-ui/jquery-ui.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
+  <script>
+
+      $( function() {
+        $( "#id_date_of_birth").datepicker({
+            changeYear: true,
+            dateFormat: "yy-mm-dd",
+            yearRange: "1940:2017"
+        });
+      } );
+  </script>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'samanta/account/profile_based.html' %}
+{% load i18n static %}
+
+{% block view %}
+
+
+    <div class="panel panel-info">
+        <div class="panel-heading text-center"><b>New password</b></div>
+            <div class="panel-body">
+            <form method="post" action="{% url 'email_change' %}">
+                {% csrf_token %}
+                <div class="col-md-12">
+                {% if form.errors %}
+                    <p class="errornote">
+                    {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+                    </p>
+                {% endif %}
+
+                <p>{% trans "Please enter your old password, for security's sake, and then enter your new password twice so we can verify you typed it in correctly." %}</p>
+                </div>
+
+              {% for field in form %}
+                <div class="form-group col-md-12">
+                    <div class="col-md-4 text-right">
+                        <label class="control-label">{{ field.label }}</label>
+                    </div>
+                    <div class="col-md-8">
+                        {{ field }}
+                    </div>
+                  {% if field.errors %}
+                    <div class="col-md-8 col-md-offset-2">
+                      {% for error in field.errors %}
+                        <span class="label label-warning">{{ error}}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+
+                <div class="col-md-12">
+                    <input type="submit" class="btn btn-primary" value="{% trans 'Change my password' %}" class="default" />
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

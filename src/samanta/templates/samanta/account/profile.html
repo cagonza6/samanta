@@ -1,0 +1,94 @@
+{% extends 'samanta/account/profile_based.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block view %}
+
+    <div class="panel panel-info">
+      <!-- Default panel contents -->
+      <div class="panel-heading text-center">
+          <i class="fa fa-id-card-o" aria-hidden="true"></i>
+        Profile: <b>{{ user.get_full_name | title}}</b>
+      </div>
+      <div class="panel-body">
+          <div class="col-lg-4 col-lg-offset-4 text-center">
+              <img alt="Avatar" align="center" src="{{ user.gravatar }}"><br>
+              
+          </div>
+          
+          <div class="col-lg-12 "> 
+      <!-- Table -->
+              <table class="table table-hover no-margin">
+                <tbody class="no-padding no-margin no-border">
+                <tr>
+                    <td><i class="fa fa-user" aria-hidden="true"></i> {% trans "Username" %}</td>
+                    <td>{{ user.username}}</td>
+
+                    <td><i class="fa fa-envelope-o" aria-hidden="true"></i> {% trans "Email" %}</td>
+                    <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                </tr>
+                <tr>
+                    <td><i class="fa fa-globe" aria-hidden="true"></i></i> {% trans "Location" %}</td>
+                    <td>{{ user.location.name }}</td>
+
+                    <td><i class="fa fa-language" aria-hidden="true"></i></i> {% trans "Language" %}</td>
+                    <td>{{ user.language }}</td>
+                </tr>
+                <tr>
+                    <td><i class="fa fa-birthday-cake" aria-hidden="true"></i> {% trans "Birthday" %}</td>
+                    <td>{{ user.date_of_birth }}</td>
+
+                    <td><i class="fa fa-calendar-o" aria-hidden="true"></i> {% trans "Member since" %}</td>
+                    <td>{{ user.date_joined |date:"d-M-Y"}}</td>
+                </tr>
+                <tr>
+                    <td><i class="fa fa-venus-mars" aria-hidden="true"></i> {% trans "Gender" %}</td>
+                    <td>{{ user.get_gender_display }}</td>
+
+                    <td>{% if user.last_login %} <i class="fa fa-sign-in" aria-hidden="true"></i> Last login:{% endif %}</td></td>
+                    <td>{% if user.last_login %} {{ user.last_login |date:"d-M-Y" }}</b>{% endif %}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <i class="fa fa-users" aria-hidden="true"></i> {% trans "Teams" %}</b>
+                        <ul>
+                          {% for team in user.teams.all %}
+                            <li>{{ team.name }}</li>
+                          {% endfor %}
+                        </ul>
+                    </td>
+                    <td colspan="2">
+                        <i class="fa fa-cogs" aria-hidden="true"></i> {% trans "Groups" %}</b>
+                        <ul>
+                          {% for group in user.groups.all %}
+                            <li>{{ group.name }}</li>
+                          {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                </tbody>
+              </table>
+          </div>
+      </div>
+      {% if 0 %}
+      <div class="panel-footer">
+            <a href="mailto:{{user.email}}" data-original-title="Broadcast Message" class="btn btn-sm btn-primary">
+                <i class="glyphicon glyphicon-envelope"></i>
+            </a>
+            <span class="pull-right">
+                <a href="edit.html" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+                <a data-original-title="Ban this user" class="btn btn-sm btn-danger">
+                    <i class="fa fa-ban" aria-hidden="true"></i>
+                </a>
+                <a data-original-title="Delete this user" class="btn btn-sm btn-danger">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </a>
+            </span>
+      </div>
+      {% endif %}
+    </div>
+
+
+{% endblock %}

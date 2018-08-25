@@ -1,0 +1,25 @@
+{% extends 'index.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+
+<div class="col-md-3">
+    <div class="panel panel-primary">
+        <div class="panel-heading text-center"><b>Menu</b></div>
+            <div class="list-group">
+              <a href="{% url 'user_profile' %}" class="list-group-item"><i class="fa fa-id-card-o" aria-hidden="true"></i> Profile</a>
+              <a href="{% url 'profile_edit' %}" class="list-group-item"><i class="fa fa-edit" aria-hidden="true"></i> Edit</a>
+              <a href="{% url 'password_change' %}" class="list-group-item"><i class="fa fa-key" aria-hidden="true"></i> Change password</a>
+              <a href="{% url 'email_change' %}" class="list-group-item"><i class="fa fa-envelope" aria-hidden="true"></i> Change email</a>
+              <a href="#" class="list-group-item"><i class="fa fa-cogs" aria-hidden="true"></i> Options</a>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-9">
+{% block view %}{% endblock %}
+</div>
+
+
+{% endblock %}
